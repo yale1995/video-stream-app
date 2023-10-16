@@ -1,5 +1,9 @@
+import axios from 'axios'
+
 import { Input } from '@/components/Input'
 import { useCallback, useState } from 'react'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/router'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -8,11 +12,43 @@ export default function Auth() {
 
   const [variant, setVariant] = useState('login')
 
+  const router = useRouter()
+
   const toggleVariant = useCallback(() => {
     setVariant((currentVariant) =>
       currentVariant === 'login' ? 'register' : 'login',
     )
   }, [])
+
+  const login = useCallback(async () => {
+    event?.preventDefault()
+    try {
+      await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+        callbackUrl: '/',
+      })
+      router.push('/')
+    } catch (error) {
+      console.log(error)
+    }
+  }, [email, password, router])
+
+  const register = useCallback(async () => {
+    event?.preventDefault()
+    try {
+      await axios.post('/api/register', {
+        email,
+        name,
+        password,
+      })
+
+      login()
+    } catch (error) {
+      console.log(error)
+    }
+  }, [email, name, password, login])
 
   return (
     <div className="relative w-full h-screen bg-[url('/images/netflix-hero.jpg')] bg-center bg-no-repeat bg-fixed bg-cover">
@@ -64,7 +100,10 @@ export default function Auth() {
               />
             </div>
 
-            <button className="bg-red-600 py-3 text-white rounded-md w-full mt-10 hover:bg-red-700 transition">
+            <button
+              onClick={variant === 'login' ? login : register}
+              className="bg-red-600 py-3 text-white rounded-md w-full mt-10 hover:bg-red-700 transition"
+            >
               {variant === 'login' ? 'Login' : 'Sign up'}
             </button>
 
