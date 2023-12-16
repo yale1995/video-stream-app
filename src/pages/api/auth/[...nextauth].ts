@@ -7,8 +7,9 @@ import GithubProvider from 'next-auth/providers/github'
 import { prismaClient } from '@/lib/prismadb'
 import { compare } from 'bcrypt'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { AuthOptions } from 'next-auth'
 
-export default NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
@@ -72,4 +73,6 @@ export default NextAuth({
     secret: process.env.NEXTAUTH_JWT_SECRET,
   },
   secret: process.env.NEXTAUTH_SECRET,
-})
+}
+
+export default NextAuth(authOptions)

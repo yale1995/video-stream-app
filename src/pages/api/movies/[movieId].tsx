@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-
 import { prismaClient } from '@/lib/prismadb'
 import { serverAuth } from '@/lib/serverAuth'
 
@@ -12,8 +11,21 @@ export default async function handler(
   try {
     await serverAuth(req, res)
 
-    const movies = await prismaClient.movie.findMany()
-    return res.status(200).json(movies)
+    const { movieId } = req.query
+
+    if (typeof movieId !== 'string') throw new Error('Invalida Id')
+
+    if (!movieId) throw new Error('Invalida Id')
+
+    const movie = await prismaClient.movie.findUnique({
+      where: {
+        id: movieId,
+      },
+    })
+
+    if (!movie) throw new Error('Invalid Id')
+
+    return res.status(200).json(movie)
   } catch (error) {
     console.log(error)
     return res.status(400).end()
