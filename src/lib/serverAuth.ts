@@ -1,12 +1,13 @@
-import { NextApiRequest } from 'next'
-import { getSession } from 'next-auth/react'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'next-auth'
 
 import { prismaClient } from './prismadb'
+import { authOptions } from '@/pages/api/auth/[...nextauth]'
 
-export const serverAuth = async (req: NextApiRequest) => {
-  const session = await getSession({ req })
+export const serverAuth = async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getServerSession(req, res, authOptions)
 
-  if (!session?.user?.email) throw new Error('Not signed in')
+  if (!session?.user?.email) throw new Error('Not signed in 1')
 
   const currentUser = await prismaClient.user.findUnique({
     where: {
@@ -14,7 +15,7 @@ export const serverAuth = async (req: NextApiRequest) => {
     },
   })
 
-  if (!currentUser) throw new Error('Not signed in')
+  if (!currentUser) throw new Error('Not signed in 2')
 
   return { currentUser }
 }
